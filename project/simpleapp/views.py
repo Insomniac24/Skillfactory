@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Post
-from .forms import PostForm
+from django.views.generic.edit import FormMixin
+
+from .models import Post, Comment
+from .forms import PostForm, CommentForm
 from .filters import PostFilter
 
 
@@ -27,10 +29,34 @@ class PostsList(ListView):
         return context
 
 
-class PostDetail(DetailView):
+class PostDetail(FormMixin, DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
+    form_class = CommentForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy('post_detail', kwargs={'pk': self.get_object().id})
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.post = self.get_object()
+        self.object.author = self.request.user
+        self.object.save()
+        return super().form_valid(form)
+
+
+class CommentDetail(DetailView):
+    model = Comment
+    template_name = 'post.html'
+    context_object_name = 'comment'
 
 
 class PostCreate(CreateView):

@@ -13,11 +13,34 @@ Post
 
 {% block content %}
     <h1>{{ post.name }}</h1>
-    <h2>Дата публикации: {{ post.date }}</h2>
-    <div>{{ post.description }}</div>
+    Автор: {{ post.author }}<br>
+    Дата публикации: {{ post.date }}<br><br>
+    <p style="text-indent:25px;">{{ post.description }}</p>
+
     <button><a href="/posts/{{ post.id }}/update">Редактировать пост</a></button>
     <button><a href="/posts/{{ post.id }}/delete">Удалить пост</a></button>
     <hr>
+
+    <p>Комментарии({{post.comments.all.count}})</p>
+    <p>Добавить комментарий</p>
+    <form action="" id="add_form" method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+    </form>
+    <button form="add_form" type="submit" class="btn btn-primary">Добавить</button>
+    <hr>
+
+    <ul>
+    {% for item in post.comments.all %}
+    <li>
+        Дата создания:{{ item.date }}<br>
+        Автор:{{ item.author }}
+        <p style="text-indent:25px;">{{ item.content }}</p>
+    </li>
+    {% endfor %}
+    </ul>
+
+
 
 {% endblock content %}
 </body>

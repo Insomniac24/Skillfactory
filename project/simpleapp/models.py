@@ -12,17 +12,14 @@ class Post(models.Model):
     )
     description = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(
-        User,
-        verbose_name=u'автор поста',
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE)
-    category = models.ForeignKey(
-        to='Category',
-        on_delete=models.CASCADE,
-        related_name='posts',
-    )
+    author = models.ForeignKey(User,
+                               verbose_name='автор поста',
+                               blank=True,
+                               null=True,
+                               on_delete=models.CASCADE)
+    category = models.ForeignKey(to='Category',
+                                 on_delete=models.CASCADE,
+                                 related_name='posts',)
 
     def __str__(self):
         return f'{self.name.title()}: {self.description[:20]}'
@@ -37,3 +34,19 @@ class Category(models.Model):
     def __str__(self):
         return self.name.title()
 
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post,
+                             on_delete=models.CASCADE,
+                             verbose_name='Пост',
+                             related_name='comments',
+                             blank=True,
+                             null=True)
+    author = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               verbose_name='Автор комментария',
+                               blank=True,
+                               null=True)
+    content = models.TextField(verbose_name='Текст комментария')
+    date = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField(verbose_name='Статус комментария', default=False)
